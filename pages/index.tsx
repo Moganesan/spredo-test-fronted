@@ -1,7 +1,9 @@
 import Head from "next/head";
-import Image from "next/image";
 import localFont from "next/font/local";
 import styles from "@/styles/Home.module.css";
+import axios from "axios";
+import Image from "next/image";
+import { useState, useEffect } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,6 +17,48 @@ const geistMono = localFont({
 });
 
 export default function Home() {
+  // stored all filter options here
+  const [coins, setCoins] = useState([]);
+  const [sortBy, setSortBy] = useState(1);
+  const [search, setSearch] = useState("");
+  const [fdv, setFDV] = useState(100000000);
+
+  const fetchCoins = async () => {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      const res = await axios.get(process.env.NEXT_PUBLIC_API_URL);
+      setCoins(res.data);
+      console.log(res.data);
+    }
+  };
+
+  // fetching default setting responses
+  useEffect(() => {
+    fetchCoins();
+  }, []);
+
+  // adding and fetching filtered coin data
+  const onSubmit = async () => {
+    let url: any = process.env.NEXT_PUBLIC_API_URL;
+
+    if (sortBy == 1) {
+      url += "?sort_by=market_cap";
+    }
+    if (sortBy == 2) {
+      url += "?sort_by=volume";
+    }
+
+    if (search) {
+      url += "&search=" + search;
+    }
+
+    if (fdv !== 100000000) {
+      url += "&fdv=" + fdv;
+    }
+
+    const res = await axios.get(url);
+    setCoins(res.data);
+  };
+
   return (
     <>
       <Head>
@@ -27,90 +71,50 @@ export default function Home() {
         className={`${styles.page} ${geistSans.variable} ${geistMono.variable}`}
       >
         <main className={styles.main}>
-          <Image
-            className={styles.logo}
-            src="https://nextjs.org/icons/next.svg"
-            alt="Next.js logo"
-            width={180}
-            height={38}
-            priority
-          />
-          <ol>
-            <li>
-              Get started by editing <code>pages/index.tsx</code>.
-            </li>
-            <li>Save and see your changes instantly.</li>
-          </ol>
-
-          <div className={styles.ctas}>
-            <a
-              className={styles.primary}
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+          <div>
+            <input
+              className={styles.input}
+              onChange={(e) => setFDV(Number(e.target.value))}
+              placeholder="FDV Below... default $100m"
+            />
+            <input
+              className={styles.input}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name. eg eth for ethereum"
+            />
+            <select
+              className={styles.input}
+              onChange={(e) => setSortBy(Number(e.target.value))}
             >
-              <Image
-                className={styles.logo}
-                src="https://nextjs.org/icons/vercel.svg"
-                alt="Vercel logomark"
-                width={20}
-                height={20}
-              />
-              Deploy now
-            </a>
-            <a
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.secondary}
-            >
-              Read our docs
-            </a>
+              <option defaultChecked value={1}>
+                Trade Volume
+              </option>
+              <option value={2}>Market Cap</option>
+            </select>
+            <button onClick={onSubmit} className={styles.button}>
+              Submit
+            </button>
+          </div>
+          <div className={styles.container}>
+            {coins?.length > 0 ? (
+              coins.map((coin: any, index) => (
+                <div key={index}>
+                  <Image
+                    src={coin.image}
+                    alt={coin.symbol}
+                    width={100}
+                    height={100}
+                  />
+                  <h2>{coin.name}</h2>
+                </div>
+              ))
+            ) : (
+              <div>Loading.</div>
+            )}
           </div>
         </main>
         <footer className={styles.footer}>
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="https://nextjs.org/icons/file.svg"
-              alt="File icon"
-              width={16}
-              height={16}
-            />
-            Learn
-          </a>
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="https://nextjs.org/icons/window.svg"
-              alt="Window icon"
-              width={16}
-              height={16}
-            />
-            Examples
-          </a>
-          <a
-            href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="https://nextjs.org/icons/globe.svg"
-              alt="Globe icon"
-              width={16}
-              height={16}
-            />
-            Go to nextjs.org →
-          </a>
+          Spredo Full Stack Developer Test
         </footer>
       </div>
     </>

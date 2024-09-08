@@ -61,6 +61,16 @@
   gap: 16px;
 }
 
+.input {
+  height: 30px;
+  margin-left: 20px;
+}
+
+.button {
+  margin-left: 20px;
+  padding: 10px;
+}
+
 .ctas a {
   appearance: none;
   border-radius: 128px;
@@ -103,6 +113,19 @@ a.secondary {
 
 .footer img {
   flex-shrink: 0;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; /* Adjust the spacing between columns as needed */
+}
+
+.item {
+  background-color: #f0f0f0; /* Background color for demonstration */
+  padding: 20px; /* Adjust padding as needed */
+  border: 1px solid #ccc; /* Border for demonstration */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for demonstration */
 }
 
 /* Enable hover only on non-touch devices */
